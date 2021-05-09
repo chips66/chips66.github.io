@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Project 3</title>
+    <link>/</link>
+    <description>Recent content on Project 3</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Sun, 09 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Test Post</title>
+      <link>/post/2021/05/09/test-post/</link>
+      <pubDate>Sun, 09 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2021/05/09/test-post/</guid>
+      <description>Heeelllloooo blah blah</description>
+    </item>
+    
+    <item>
+      <title>Project 1</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Texas College Data I have chosen two datasets that consist of academic information regarding most of the universities in Texas for 2021. I obtained the “Texas_College_Acceptance_Rates_2021” dataset from acceptancerates.com, and I obtained the “Texas_College_Rank_SAT_2021” from USNews.com.
+The “Texas_College_Acceptance_Rates_2021” dataset includes the variables ‘School’, ‘Applicants’, ‘Admitted’, and ‘Acceptance.Rate’.
+The The “Texas_College_Rank_SAT_2021” dataset includes the variables ‘School’, Popularity.Rank’, and SAT.75.Perc’. ‘Popularity.Rank’ is simply a ranking based on certain criteria such as accreditation and degrees offered.</description>
+    </item>
+    
+    <item>
+      <title>Project 2</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>For project 2, I have selected a dataset from the R library that includes responses from a survey on extramarital affairs conducted by Psychology Today in 1969. The dataset has variables like ‘affairs’ which tells how many affairs each person has had in the last year. ‘gender’, ‘age’, and ‘yearsmarried’ are all self-explanatory. ‘education’ tells the number of years of education completed by the participant. Last, ‘rating’ is a self-rating of the participant’s current marriage with ‘1’ meaning “very unhappy” and ‘5’ meaning “very happy.</description>
+    </item>
+    
+    <item>
+      <title>Projects</title>
+      <link>/projects/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/projects/</guid>
+      <description> Check out some of my coding projects below:
+ Wrangling &amp;amp; Exploratory Data Analysis
+ Modeling, Inference, Prediction
+  -- </description>
+    </item>
+    
+    <item>
+      <title>Resume</title>
+      <link>/resume/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resume/</guid>
+      <description>    </description>
+    </item>
+    
+  </channel>
+</rss>

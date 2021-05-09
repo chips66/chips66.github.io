@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Chris Hinds" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="texas-college-data" class="section level2">
+<h2>Texas College Data</h2>
+<p><em>I have chosen two datasets that consist of academic information regarding most of the universities in Texas for 2021. I obtained the “Texas_College_Acceptance_Rates_2021” dataset from acceptancerates.com, and I obtained the “Texas_College_Rank_SAT_2021” from USNews.com.</em></p>
+<p><em>The “Texas_College_Acceptance_Rates_2021” dataset includes the variables ‘School’, ‘Applicants’, ‘Admitted’, and ‘Acceptance.Rate’.</em></p>
+<p><em>The The “Texas_College_Rank_SAT_2021” dataset includes the variables ‘School’, Popularity.Rank’, and SAT.75.Perc’. ‘Popularity.Rank’ is simply a ranking based on certain criteria such as accreditation and degrees offered. ‘SAT.75.Perc’ is the 75th percentile SAT score for matriculants of each college.</em></p>
+<p><em>I chose these data because I thought it would intersting to study the relationship between variables such as SAT scores and acceptance rates. I would expect that a university with a lower acceptance rate would also have higher 75th percentile SAT scores. Alternatively, I expect that colleges with a better popularity ranking will have a higher number of applicants.</em></p>
+<pre class="r"><code>rates &lt;- read.csv(&quot;Texas_College_Acceptance_Rates_2021.csv&quot;) %&gt;% select(-X)
+ranks &lt;- read.csv(&quot;Texas_College_Rank_SAT_2021.csv&quot;)
+
+stats &lt;- inner_join(rates, ranks, by = &quot;School&quot;)
+glimpse(stats)</code></pre>
+<pre><code>## Rows: 60
+## Columns: 6
+## $ School          &lt;fct&gt; Rice, Southwestern Assemblies of God University, Texa…
+## $ Applicants      &lt;int&gt; 15415, 2057, 830, 2091, 38161, 1810, 2394, 2631, 1074…
+## $ Admitted        &lt;int&gt; 2581, 717, 309, 786, 15335, 736, 998, 1113, 4548, 438…
+## $ Acceptance.Rate &lt;dbl&gt; 0.167, 0.349, 0.372, 0.376, 0.402, 0.407, 0.417, 0.42…
+## $ Popularity.Rank &lt;int&gt; 4, 59, 65, 45, 1, 61, 50, 39, 37, 28, 58, 46, 14, 30,…
+## $ SAT.75.perc     &lt;int&gt; 1570, 1103, 1150, 1150, 1480, 1310, 1140, 1250, 1040,…</code></pre>
+<p><em>Here I have simply combined my two datasets by their common variable “School” using the ‘inner_join()’ function. In doing this, I have automatically excluded any colleges that were not present in both datasets. I did this so there would be no randomly absent observations. Northwood University, Sul Ross State University, UT-Pan American, Our Lady of the Lake, Remington College, UTEP, Criswell, A&amp;M Texarkana, King’s University, UT RGV, Houston Clear Lake, and UNT were all dropped from the resulting dataset. This shouldn’t cause any issues except that it could slightly skew summary statistics and correlations determined later.</em></p>
+<p><em>For some reason, there was an empty column entitled “X” when I imported the acceptance rate dataset, so I dropped this column using the ‘select()’ function.</em></p>
+<pre class="r"><code>all_stats &lt;- stats %&gt;% mutate(Denied = Applicants - Admitted)
+
+top_tier &lt;- all_stats %&gt;% filter(Acceptance.Rate &lt; 0.6 &amp; Popularity.Rank &lt;= 25 &amp; SAT.75.perc &gt;= 1250) %&gt;% arrange(desc(SAT.75.perc))
+
+glimpse(top_tier)</code></pre>
+<pre><code>## Rows: 8
+## Columns: 7
+## $ School          &lt;fct&gt; Rice, The University of Texas at Austin (UT Austin), …
+## $ Applicants      &lt;int&gt; 15415, 38161, 12080, 8750, 29249, 18551, 17407, 18299
+## $ Admitted        &lt;int&gt; 2581, 15335, 6125, 5125, 16809, 8791, 10167, 10922
+## $ Acceptance.Rate &lt;dbl&gt; 0.167, 0.402, 0.507, 0.586, 0.575, 0.474, 0.584, 0.597
+## $ Popularity.Rank &lt;int&gt; 4, 1, 7, 9, 6, 14, 3, 5
+## $ SAT.75.perc     &lt;int&gt; 1570, 1480, 1480, 1460, 1380, 1350, 1310, 1250
+## $ Denied          &lt;int&gt; 12834, 22826, 5955, 3625, 12440, 9760, 7240, 7377</code></pre>
+<pre class="r"><code>top_tier %&gt;% summarize(mean(SAT.75.perc), median(SAT.75.perc), sd(SAT.75.perc), mean(Acceptance.Rate), median(SAT.75.perc), sd(Acceptance.Rate))</code></pre>
+<pre><code>##   mean(SAT.75.perc) median(SAT.75.perc) sd(SAT.75.perc) mean(Acceptance.Rate)
+## 1              1410                1420        105.5597                0.4865
+##   sd(Acceptance.Rate)
+## 1           0.1460166</code></pre>
+<pre class="r"><code>all_stats %&gt;% group_by(Acceptance.Rate &lt; 0.5, Acceptance.Rate &gt;= 0.5) %&gt;% summarise(mean(SAT.75.perc), min(SAT.75.perc), max(SAT.75.perc))</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;Acceptance.Rate &lt; 0.5&#39; (override with `.groups` argument)</code></pre>
+<pre><code>## # A tibble: 2 x 5
+## # Groups:   Acceptance.Rate &lt; 0.5 [2]
+##   `Acceptance.Rat… `Acceptance.Rat… `mean(SAT.75.pe… `min(SAT.75.per…
+##   &lt;lgl&gt;            &lt;lgl&gt;                       &lt;dbl&gt;            &lt;int&gt;
+## 1 FALSE            TRUE                        1196.              910
+## 2 TRUE             FALSE                       1199.              980
+## # … with 1 more variable: `max(SAT.75.perc)` &lt;int&gt;</code></pre>
+<pre class="r"><code>applicant_info &lt;- all_stats %&gt;% select(School, SAT.75.perc, Acceptance.Rate)
+
+head(applicant_info)</code></pre>
+<pre><code>##                                             School SAT.75.perc Acceptance.Rate
+## 1                                             Rice        1570           0.167
+## 2        Southwestern Assemblies of God University        1103           0.349
+## 3 Texas A &amp; M University-Texarkana (A&amp;M-Texarkana)        1150           0.372
+## 4                  Hardin-Simmons University (HSU)        1150           0.376
+## 5    The University of Texas at Austin (UT Austin)        1480           0.402
+## 6                     LeTourneau University (LETU)        1310           0.407</code></pre>
+<pre class="r"><code>fake.tidy &lt;- all_stats %&gt;% pivot_longer(!School, names_to = &quot;stat&quot;, values_to = &quot;count&quot;)
+fake.tidy</code></pre>
+<pre><code>## # A tibble: 360 x 3
+##    School                                    stat                count
+##    &lt;fct&gt;                                     &lt;chr&gt;               &lt;dbl&gt;
+##  1 Rice                                      Applicants      15415    
+##  2 Rice                                      Admitted         2581    
+##  3 Rice                                      Acceptance.Rate     0.167
+##  4 Rice                                      Popularity.Rank     4    
+##  5 Rice                                      SAT.75.perc      1570    
+##  6 Rice                                      Denied          12834    
+##  7 Southwestern Assemblies of God University Applicants       2057    
+##  8 Southwestern Assemblies of God University Admitted          717    
+##  9 Southwestern Assemblies of God University Acceptance.Rate     0.349
+## 10 Southwestern Assemblies of God University Popularity.Rank    59    
+## # … with 350 more rows</code></pre>
+<pre class="r"><code>fake.tidy %&gt;% pivot_wider(names_from = stat, values_from = count)</code></pre>
+<pre><code>## # A tibble: 60 x 7
+##    School Applicants Admitted Acceptance.Rate Popularity.Rank SAT.75.perc Denied
+##    &lt;fct&gt;       &lt;dbl&gt;    &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;       &lt;dbl&gt;  &lt;dbl&gt;
+##  1 Rice        15415     2581           0.167               4        1570  12834
+##  2 South…       2057      717           0.349              59        1103   1340
+##  3 Texas…        830      309           0.372              65        1150    521
+##  4 Hardi…       2091      786           0.376              45        1150   1305
+##  5 The U…      38161    15335           0.402               1        1480  22826
+##  6 LeTou…       1810      736           0.407              61        1310   1074
+##  7 Texas…       2394      998           0.417              50        1140   1396
+##  8 Dalla…       2631     1113           0.423              39        1250   1518
+##  9 Prair…      10747     4548           0.423              37        1040   6199
+## 10 Texas…       9746     4389           0.45               28        1000   5357
+## # … with 50 more rows</code></pre>
+<p><em>I chose to use the ‘mutate()’ function first. Specifically, by subtracting the ‘Admitted’ column from the ‘Applicants’ column, I created the ‘Denied’ column. Next, I used the ‘filter()’ and ‘arrange()’ functions to create a new dataset called “top_tier”. I filtered through only the schools with an acceptance rate less than 0.6, a popularity ranking of 25 or better, and a matriculant 75th percentile SAT score of 1250 or greater. I then used the ‘summarise()’ function to create a table containing the mean, median, and standard deviation of the 75th percentile SAT scores and acceptance rates for these top tier colleges.</em></p>
+<p><em>I did not have any categorical variables in my dataset, so I split the schools into two groups: those with an acceptance rate of 0.5 or more and those with an acceptance rate less than 0.5. I then funneled this into another ‘summarise()’ function to find the mean, min, and max for both of these groups. I then used the ‘select()’ function to create a new dataset with only the ‘School’, ‘SAT.75.perc’, and ‘Acceptance.Rate’ variables from the original dataset.</em></p>
+<p><em>Lastly, I used the ‘pivot_longer()’ function to reduce the number of columns and increase the number of rows in my data (untidy). I put all column names (except ‘School’) under a newly created ‘stat’ column, and I put all values’ under a newly created ‘count’ column. To retidy my data, I simply reversed this using the ‘pivot_wider()’ function, leaving my dataset exactly as it was before.</em></p>
+<pre class="r"><code>cormat &lt;- all_stats %&gt;% select_if(is.numeric) %&gt;% cor(use=&quot;pair&quot;)
+
+tidycor &lt;- cormat %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;var1&quot;) %&gt;% pivot_longer(-1,names_to=&quot;var2&quot;,values_to=&quot;correlation&quot;)
+
+tidycor %&gt;% ggplot(aes(var1,var2,fill=correlation))+
+geom_tile() +
+scale_fill_gradient2(low=&quot;red&quot;,mid=&quot;white&quot;,high=&quot;green&quot;)+
+geom_text(aes(label=round(correlation,2)),color = &quot;black&quot;, size = 4)+
+theme(axis.text.x = element_text(angle = 90, hjust=1))+
+coord_fixed()+
+ggtitle(&quot;Correlations Amongst Texas\nCollege Statistics&quot;)+
+labs(y= &quot;Variable 2&quot;, x = &quot;Variable 1&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><em>This correlation heat map shows the relationships between all five of the numeric variables in my “all_stats” dataset. It seems that the acceptance rates of schools have weak or no correlations with all of the other variables. However, the number of students admitted has a very strong positive correlation with the number of applicants and with the number of denied students (of course). There is also a fairly strong negative correlation between admitted students and a school’s popularity rank. The number of applicants and denied students is very positively correlated, while the number of applicants and a school’s popularity rank is negatively related. Finally, the number of denied students is negatively correlated with a school’s popularity rank, and 75th percentile SAT score is also negatively correlated with popularity rank.</em></p>
+<pre class="r"><code>stat_divisions &lt;- all_stats %&gt;% mutate(SAT_75th_percentile = ifelse(SAT.75.perc&lt;=1000, &quot;&lt;=1000&quot;, ifelse(SAT.75.perc&gt;1000&amp;SAT.75.perc&lt;=1100, &quot;1000-1100&quot;, ifelse(SAT.75.perc&gt;1100 &amp; SAT.75.perc&lt;=1200, &quot;1100-1200&quot;, ifelse(SAT.75.perc&gt;1200 &amp; SAT.75.perc&lt;=1300, &quot;1200-1300&quot;, ifelse(SAT.75.perc&gt;1300 &amp; SAT.75.perc&lt;=1400, &quot;1300-1400&quot;, ifelse(SAT.75.perc&gt;1400, &quot;&gt;1400&quot;, &quot;0&quot;)))))))
+
+stat_divisions &lt;- stat_divisions %&gt;% mutate(Acceptance_Rate = ifelse(Acceptance.Rate&lt;=0.25, &quot;&lt;=25%&quot;, ifelse(Acceptance.Rate&gt;0.25&amp;Acceptance.Rate&lt;=0.5, &quot;25-50%&quot;, ifelse(Acceptance.Rate&gt;0.5 &amp; Acceptance.Rate&lt;=0.75, &quot;50-75%&quot;, ifelse(Acceptance.Rate&gt;0.75, &quot;75-100%&quot;, &quot;0&quot;)))))
+
+stat_divisions &lt;- stat_divisions %&gt;% mutate(Num.Applicants = ifelse(Applicants&lt;=5000, &quot;&lt;=5,000&quot;, ifelse(Applicants&gt;5000&amp;Applicants&lt;=10000, &quot;5,000-10,000&quot;, ifelse(Applicants&gt;10000 &amp; Applicants&lt;=15000, &quot;10,000-15,000&quot;, ifelse(Applicants&gt;15000 &amp; Applicants&lt;=20000, &quot;15,000-20,000&quot;, ifelse(Applicants&gt;20000 &amp; Applicants&lt;=25000, &quot;20,000-25,000&quot;, ifelse(Applicants&gt;25000, &quot;&gt;25,000&quot;, &quot;0&quot;)))))))
+
+stat_divisions %&gt;% ggplot(aes(Acceptance.Rate)) + geom_histogram(aes(fill = Num.Applicants),  color = &quot;black&quot;) +
+  geom_density(aes(color = SAT_75th_percentile), size = 1.25)+
+  ggtitle(&quot;SAT Scores and Number of Applicants Relative to Acceptance Rate&quot;)+
+  labs(x = &quot;Acceptance Rate&quot;, fill = &quot;Number of Applicants\n(Histogram)&quot;, color = &quot;75th Percentile SAT Score\n(Density Plot)&quot;)+
+  scale_color_manual(values = c(&quot;dark red&quot;, &quot;dark orange&quot;, &quot;yellow&quot;, &quot;dark green&quot;, &quot;dark blue&quot;, &quot;purple&quot;))+
+  scale_y_continuous(breaks = c(1, 2, 3, 4, 5, 6, 7))</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><em>First, since I didn’t have any categorical variables in my dataset, I had to create a few from my numerical variables. Specifically, I created ranges for each variable to be grouped into.</em></p>
+<p><em>I used the acceptance rate, number of applicants, and SAT score variables for this plot. With this graph, you can compare these variables with each other. For example, you can see that schools with an SAT 75th percentile score of 1300-1400 tend to have an acceptance rate of around 55%. Additionally, you can see that there seems to be no relationship between the number of applicants a school considers and the school’s acceptance rate since each color of the histogram aesthetic is scattered throughout the plot.</em></p>
+<pre class="r"><code>ggplot(stat_divisions, aes(x = Acceptance_Rate, y = SAT.75.perc, fill=Num.Applicants))+
+  geom_bar(stat=&quot;summary&quot;,fun=mean, position = &quot;dodge&quot;)+
+  ggtitle(&quot;Makeup of Acceptance Rate Quartiles&quot;)+
+  labs(y= &quot;75th Percentile SAT Score&quot;, x = &quot;Acceptance Rate&quot;, fill = &quot;# of Applicants&quot;)+
+  scale_fill_manual(values = c(&quot;red&quot;, &quot;orange&quot;, &quot;yellow&quot;, &quot;green&quot;, &quot;blue&quot;, &quot;purple&quot;))+
+  scale_fill_hue(l=60, c=60)</code></pre>
+<pre><code>## Scale for &#39;fill&#39; is already present. Adding another scale for &#39;fill&#39;, which
+## will replace the existing scale.</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><em>Since I really don’t have many variables to play with, I used the same three variables here. However, this time I presented the data such a way that shows the makeup of each quartile of acceptance rates. Additionally, this plot allows you to see which quartiles coincide with which 75th percentile SAT scores. This graph illustrates that all schools with an acceptance rate of 25% or less have between 15,000 and 20,000 applicants. It can also be concluded that the Texas schools that have greater than 25,000 applicants and an acceptance rate of 25-50% have an average 75th percentile SAT score of nearly 1500. Many other conclusions such as this can be reached, but a more general conclusion is that there seems to be no relationship between a school’s acceptance rate and its matriculant SAT scores.</em></p>
+<pre class="r"><code>some_stats &lt;- all_stats %&gt;% select(-Popularity.Rank)
+num_stats &lt;- some_stats %&gt;% select_if(is.numeric) %&gt;% scale
+rownames(num_stats)&lt;- all_stats$School
+stats_pca &lt;- princomp(num_stats)
+names(stats_pca)</code></pre>
+<pre><code>## [1] &quot;sdev&quot;     &quot;loadings&quot; &quot;center&quot;   &quot;scale&quot;    &quot;n.obs&quot;    &quot;scores&quot;   &quot;call&quot;</code></pre>
+<pre class="r"><code>summary(stats_pca, loadings=T)</code></pre>
+<pre><code>## Importance of components:
+##                           Comp.1    Comp.2    Comp.3     Comp.4       Comp.5
+## Standard deviation     1.7814682 1.0134734 0.7570110 0.37794665 3.235309e-08
+## Proportion of Variance 0.6454839 0.2089074 0.1165557 0.02905295 2.128927e-16
+## Cumulative Proportion  0.6454839 0.8543913 0.9709471 1.00000000 1.000000e+00
+## 
+## Loadings:
+##                 Comp.1 Comp.2 Comp.3 Comp.4 Comp.5
+## Applicants       0.540  0.176  0.206         0.796
+## Admitted         0.483  0.401  0.217 -0.594 -0.454
+## Acceptance.Rate -0.201  0.882 -0.266  0.334       
+## SAT.75.perc      0.395 -0.142 -0.902 -0.104       
+## Denied           0.527 -0.105  0.164  0.724 -0.400</code></pre>
+<pre class="r"><code>statsdf &lt;- data.frame(PC1=stats_pca$scores[, 1],PC2=stats_pca$scores[, 2])
+ggplot(statsdf, aes(PC1, PC2)) + geom_point()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>School &lt;-  all_stats$School
+
+#highest PC1
+stats_pca$scores %&gt;% as.data.frame %&gt;% cbind(School, .) %&gt;% top_n(3, Comp.1) </code></pre>
+<pre><code>##                                                                                                School
+## The University of Texas at Austin (UT Austin)           The University of Texas at Austin (UT Austin)
+## Baylor University                                                                   Baylor University
+## Texas A &amp; M University-College Station (Texas A&amp;M) Texas A &amp; M University-College Station (Texas A&amp;M)
+##                                                      Comp.1     Comp.2
+## The University of Texas at Austin (UT Austin)      6.961405 -0.2721173
+## Baylor University                                  4.679658  0.8431971
+## Texas A &amp; M University-College Station (Texas A&amp;M) 4.878344  1.9475911
+##                                                       Comp.3     Comp.4
+## The University of Texas at Austin (UT Austin)      0.5306557  1.5910235
+## Baylor University                                  0.3891064 -0.1057195
+## Texas A &amp; M University-College Station (Texas A&amp;M) 0.3270243 -1.0528392
+##                                                           Comp.5
+## The University of Texas at Austin (UT Austin)      -2.886580e-15
+## Baylor University                                  -7.771561e-16
+## Texas A &amp; M University-College Station (Texas A&amp;M) -3.330669e-16</code></pre>
+<pre class="r"><code>#lowest PC1
+stats_pca$scores %&gt;% as.data.frame %&gt;% cbind(School, .) %&gt;% top_n(3, wt=desc(Comp.1))</code></pre>
+<pre><code>##                                                            School    Comp.1
+## Dallas Christian College                 Dallas Christian College -1.831005
+## Paul Quinn College                             Paul Quinn College -2.409404
+## Wayland Baptist University (WBU) Wayland Baptist University (WBU) -1.970098
+##                                      Comp.2      Comp.3     Comp.4
+## Dallas Christian College         -0.5973586  1.17114932 0.02785875
+## Paul Quinn College                1.5433409  1.01619237 0.76265139
+## Wayland Baptist University (WBU)  1.3767047 -0.01054201 0.65129336
+##                                         Comp.5
+## Dallas Christian College          2.220446e-16
+## Paul Quinn College               -3.885781e-16
+## Wayland Baptist University (WBU) -2.775558e-16</code></pre>
+<pre class="r"><code>#highest PC2
+stats_pca$scores %&gt;% as.data.frame %&gt;% cbind(School, .) %&gt;% top_n(3, wt=Comp.2) </code></pre>
+<pre><code>##                                                                                                School
+## Texas A &amp; M University-College Station (Texas A&amp;M) Texas A &amp; M University-College Station (Texas A&amp;M)
+## Texas State University-San Marcos (Texas State)       Texas State University-San Marcos (Texas State)
+## Texas A &amp; M University-Corpus Christi                           Texas A &amp; M University-Corpus Christi
+##                                                       Comp.1   Comp.2
+## Texas A &amp; M University-College Station (Texas A&amp;M)  4.878344 1.947591
+## Texas State University-San Marcos (Texas State)     1.922365 1.625379
+## Texas A &amp; M University-Corpus Christi              -0.352617 1.599295
+##                                                        Comp.3     Comp.4
+## Texas A &amp; M University-College Station (Texas A&amp;M)  0.3270243 -1.0528392
+## Texas State University-San Marcos (Texas State)     0.8062071 -0.7197841
+## Texas A &amp; M University-Corpus Christi              -0.4106960 -0.2258224
+##                                                           Comp.5
+## Texas A &amp; M University-College Station (Texas A&amp;M) -3.330669e-16
+## Texas State University-San Marcos (Texas State)     2.220446e-16
+## Texas A &amp; M University-Corpus Christi               3.330669e-16</code></pre>
+<pre class="r"><code>#lowest PC2
+stats_pca$scores %&gt;% as.data.frame %&gt;% cbind(School, .) %&gt;% top_n(3, wt=desc(Comp.2)) </code></pre>
+<pre><code>##                                                                                            School
+## Rice                                                                                         Rice
+## Southwestern Assemblies of God University               Southwestern Assemblies of God University
+## Texas A &amp; M University-Texarkana (A&amp;M-Texarkana) Texas A &amp; M University-Texarkana (A&amp;M-Texarkana)
+##                                                      Comp.1    Comp.2
+## Rice                                              3.3059562 -2.814264
+## Southwestern Assemblies of God University        -0.8762908 -1.622711
+## Texas A &amp; M University-Texarkana (A&amp;M-Texarkana) -0.9925787 -1.607443
+##                                                      Comp.3     Comp.4
+## Rice                                             -1.3447551  0.8925568
+## Southwestern Assemblies of God University         0.6876185 -0.2817729
+## Texas A &amp; M University-Texarkana (A&amp;M-Texarkana)  0.2508454 -0.3758981
+##                                                         Comp.5
+## Rice                                             -1.221245e-15
+## Southwestern Assemblies of God University         2.498002e-16
+## Texas A &amp; M University-Texarkana (A&amp;M-Texarkana)  4.996004e-16</code></pre>
+<pre class="r"><code>all_stats %&gt;% filter(School%in%c(&quot;The University of Texas at Austin (UT Austin)&quot;, &quot;Baylor University&quot;, &quot;Texas A &amp; M University-College Station (Texas A&amp;M)&quot;))</code></pre>
+<pre><code>##                                               School Applicants Admitted
+## 1      The University of Texas at Austin (UT Austin)      38161    15335
+## 2                                  Baylor University      29249    16809
+## 3 Texas A &amp; M University-College Station (Texas A&amp;M)      31387    21803
+##   Acceptance.Rate Popularity.Rank SAT.75.perc Denied
+## 1           0.402               1        1480  22826
+## 2           0.575               6        1380  12440
+## 3           0.695               2        1390   9584</code></pre>
+<pre class="r"><code>all_stats %&gt;% filter(School%in%c(&quot;Dallas Christian College&quot;, &quot;Paul Quinn College&quot;, &quot;Wayland Baptist University (WBU)&quot;))</code></pre>
+<pre><code>##                             School Applicants Admitted Acceptance.Rate
+## 1         Dallas Christian College        223      123           0.552
+## 2               Paul Quinn College        632      623           0.986
+## 3 Wayland Baptist University (WBU)        581      573           0.986
+##   Popularity.Rank SAT.75.perc Denied
+## 1              64         972    100
+## 2              60         910      9
+## 3              51        1060      8</code></pre>
+<pre class="r"><code>all_stats %&gt;% filter(School%in%c(&quot;Texas State University-San Marcos (Texas State)&quot;, &quot;Texas A &amp; M University-College Station (Texas A&amp;M)&quot;, &quot;Texas A &amp; M University-Corpus Christi&quot;))</code></pre>
+<pre><code>##                                               School Applicants Admitted
+## 1 Texas A &amp; M University-College Station (Texas A&amp;M)      31387    21803
+## 2    Texas State University-San Marcos (Texas State)      18939    14219
+## 3              Texas A &amp; M University-Corpus Christi       7091     6565
+##   Acceptance.Rate Popularity.Rank SAT.75.perc Denied
+## 1           0.695               2        1390   9584
+## 2           0.751              12        1180   4720
+## 3           0.926              19        1200    526</code></pre>
+<pre class="r"><code>all_stats %&gt;% filter(School%in%c(&quot;Rice&quot;, &quot;Southwestern Assemblies of God University&quot;, &quot;Texas A &amp; M University-Texarkana (A&amp;M-Texarkana)&quot;))</code></pre>
+<pre><code>##                                             School Applicants Admitted
+## 1                                             Rice      15415     2581
+## 2        Southwestern Assemblies of God University       2057      717
+## 3 Texas A &amp; M University-Texarkana (A&amp;M-Texarkana)        830      309
+##   Acceptance.Rate Popularity.Rank SAT.75.perc Denied
+## 1           0.167               4        1570  12834
+## 2           0.349              59        1103   1340
+## 3           0.372              65        1150    521</code></pre>
+<p><em>Here, I grabbed all numeric data from my dataset except for ‘Popularity.Rank’. Then I scaled data and ran ‘princomp()’ on the scaled data. Next, I chose to include the first PC1 and PC2 in my analysis since these components account for over 85% of the total variance. It seems that schools high in PC1 tend be high in all variables except acceptance rate which they are lower in. Conversely, schools high in PC2 tend to have significantly higher acceptance rates. They also admit more students, but they have lower matriculant SAT scores and deny fewer students.</em></p>
+<p><em>After creating a scatterplot to visualize these components, it is apparent that there are a few outliers. I identified the the schools with the highest and lowest scores for PC1 and PC2, and then I printed out their stats seperately. As an example, UT Austin, Baylor, and A&amp;M are the three schools that are the highest in PC1.</em></p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

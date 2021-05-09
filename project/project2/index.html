@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Chris Hinds" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 2</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project2/">Project 2</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<p><strong>For project 2, I have selected a dataset from the R library that includes responses from a survey on extramarital affairs conducted by Psychology Today in 1969. The dataset has variables like ‘affairs’ which tells how many affairs each person has had in the last year. ‘gender’, ‘age’, and ‘yearsmarried’ are all self-explanatory. ‘education’ tells the number of years of education completed by the participant. Last, ‘rating’ is a self-rating of the participant’s current marriage with ‘1’ meaning “very unhappy” and ‘5’ meaning “very happy.” Each variable has exactly 601 observations.</strong></p>
+<div id="manova" class="section level2">
+<h2>1. MANOVA</h2>
+<pre class="r"><code>affairs &lt;- read.csv(&quot;Affairs.csv&quot;) %&gt;% select(-X)
+man &lt;- manova(cbind(affairs, yearsmarried, rating, education)~gender, data = affairs)
+summary(man)</code></pre>
+<pre><code>## Df Pillai approx F num Df den Df Pr(&gt;F)
+## gender 1 0.16065 28.517 4 596 &lt; 2.2e-16 ***
+## Residuals 599
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>summary.aov(man)</code></pre>
+<pre><code>## Response affairs :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## gender 1 0.9 0.8993 0.0825 0.774
+## Residuals 599 6528.2 10.8985
+##
+## Response yearsmarried :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## gender 1 17.1 17.078 0.5498 0.4587
+## Residuals 599 18606.6 31.063
+##
+## Response rating :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## gender 1 0.04 0.04133 0.0339 0.854
+## Residuals 599 730.16 1.21897
+##
+## Response education :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## gender 1 547.25 547.25 112.41 &lt; 2.2e-16 ***
+## Residuals 599 2916.12 4.87
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>pairwise.t.test(affairs$education, affairs$gender, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  affairs$education and affairs$gender 
+## 
+##      female
+## male &lt;2e-16
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>1-0.95^4</code></pre>
+<pre><code>## [1] 0.1854938</code></pre>
+<pre class="r"><code>0.05/4</code></pre>
+<pre><code>## [1] 0.0125</code></pre>
+<p><em>I ran a MANOVA test to determine if ‘affairs’, ‘yearsmarried’, ‘rating’, or ‘education’ vary by ‘gender’. This yielded a significant result, but when I ran univariate ANOVAs, only ‘education’ significantly varied across ‘gender’. Therefore, I ran a post-hoc t-test on ‘education’ which also showed a significant difference of ‘education’ across ‘gender’. I performed a total of 4 univariate ANOVAs (the t-test was essentially a duplicate of an ANOVA), so there is an 18.55% chance that there is at least one type 1 error in my results. The bonferroni corrected p-value is 0.0125, so my previously discussed results are still significant after this adjustment. The data was collected through a survey, so they got data only from participants who were willing to respond. This means the data cannot be perfectly random and doesn’t entirely meet that assumption. The independent variable is categorical and the dependent variable is a continuous numeric variable, so the data does meet this assumption. Last, there are likely no linear relationships between the dependent variables.</em></p>
+</div>
+<div id="randomization" class="section level2">
+<h2>2. Randomization</h2>
+<pre class="r"><code>ychildren &lt;- affairs %&gt;% filter(children %in% c(&quot;yes&quot;)) %&gt;% select(affairs)
+ychildren &lt;- as.vector(t(ychildren))
+
+nchildren &lt;- affairs %&gt;% filter(children %in% c(&quot;no&quot;)) %&gt;% select(affairs)
+nchildren &lt;- as.vector(t(ychildren))
+
+affairs %&gt;% group_by(children) %&gt;%
+  summarize(means = mean(affairs)) %&gt;% summarize(`mean_diff:` = diff(means))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `mean_diff:`
+##          &lt;dbl&gt;
+## 1        0.760</code></pre>
+<pre class="r"><code>chil &lt;- data.frame(children=c(rep(&quot;yes&quot;, 430), rep(&quot;no&quot;, 430)), affairs=c(ychildren, nchildren))
+head(chil)</code></pre>
+<pre><code>##   children affairs
+## 1      yes       0
+## 2      yes       0
+## 3      yes       0
+## 4      yes       0
+## 5      yes       0
+## 6      yes       0</code></pre>
+<pre class="r"><code>ggplot(chil,aes(affairs,fill=children)) + geom_histogram(bins = 7) + facet_wrap(~children, ncol=2) + theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="../../project/Project2_files/figure-html/unnamed-chunk-2-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>head(perm1 &lt;- data.frame(children = chil$children, affairs = sample(chil$affairs)))</code></pre>
+<pre><code>##   children affairs
+## 1      yes       3
+## 2      yes       0
+## 3      yes       0
+## 4      yes       0
+## 5      yes       0
+## 6      yes       0</code></pre>
+<pre class="r"><code>perm1 %&gt;% group_by(children) %&gt;%
+  summarize(means = mean(affairs)) %&gt;% summarize(`mean_diff:`=diff(means))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `mean_diff:`
+##          &lt;dbl&gt;
+## 1       -0.223</code></pre>
+<pre class="r"><code>rand_dist &lt;- vector()
+for(i in 1:5000){
+new &lt;- data.frame(affairs = sample(chil$affairs), children = chil$children)
+rand_dist[i] &lt;- mean(new[new$children == &quot;no&quot;,]$affairs) -
+mean(new[new$children == &quot;yes&quot;,]$affairs)}
+{hist(rand_dist, main=&quot;&quot;, ylab=&quot;&quot;); abline(v = 0.7598123, col=&quot;red&quot;)}</code></pre>
+<p><img src="../../project/Project2_files/figure-html/unnamed-chunk-2-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>mean(rand_dist&gt;0.7598123)*2</code></pre>
+<pre><code>## [1] 4e-04</code></pre>
+<p><em>I performed a randomization test between children (yes or no) and number of affairs in the past year. The null and alternate hypotheses are:</em></p>
+<p><em>Ho: mean number of affairs is the same for people with and without children.</em><br />
+<em>Ha: mean number of affairs is different for people with and without children.</em></p>
+<p><em>The mean difference between the groups was calculated to be 0.7598123. The data was then randomized, and a histogram was created showing the results with a red line placed at 0.7598123. The red line appears near the edge of the graph because there are very few randomized permutations with mean differences more extreme than the actual mean difference. A t-test was performed to confirm this which yielded a p-value of 0.0016. Therefore, we can reject Ho and say that there is a difference in mean number of affairs between people with and without children.</em></p>
+</div>
+<div id="linear-regression" class="section level2">
+<h2>3. Linear Regression</h2>
+<pre class="r"><code>affairs$affairs.cent &lt;- affairs$affairs - mean(affairs$affairs)
+affairs$ym.cent &lt;- affairs$yearsmarried - mean(affairs$yearsmarried)
+fit &lt;- lm(affairs.cent~ym.cent*children, data = affairs)
+summary(fit)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = affairs.cent ~ ym.cent * children, data =
+affairs)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -4.5256 -2.0239 -1.2196 -0.1911 11.0180
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 0.99453 0.43194 2.302 0.02165 *
+## ym.cent 0.30417 0.07013 4.337 1.69e-05 ***
+## childrenyes -0.92538 0.46346 -1.997 0.04632 *
+## ym.cent:childrenyes -0.23106 0.07693 -3.003 0.00278 **
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Residual standard error: 3.225 on 597 degrees of freedom
+## Multiple R-squared: 0.04929, Adjusted R-squared: 0.04451
+## F-statistic: 10.32 on 3 and 597 DF, p-value: 1.252e-06</code></pre>
+<pre class="r"><code>t.test(data = affairs, affairs.cent~children, var.eq = T)</code></pre>
+<pre><code>##
+## Two Sample t-test
+##
+## data: affairs.cent by children
+## t = -2.5595, df = 599, p-value = 0.01073
+## alternative hypothesis: true difference in means is not
+equal to 0
+## 95 percent confidence interval:
+## -1.342831 -0.176794
+## sample estimates:
+## mean in group no mean in group yes
+## -0.5436261 0.2161862</code></pre>
+<pre class="r"><code>ggplot(affairs, aes(x = ym.cent, y = affairs.cent, group = children)) +
+  geom_point(aes(color = children)) + geom_smooth(method = &quot;lm&quot;, formula =
+  y~1, se=F, fullrange = T, aes(color=children)) + theme(legend.position = c(.9,.91)) + xlab(&quot;Years Married (mean centered)&quot;) + ylab(&quot;# of affairs in past year (mean centered)&quot;)</code></pre>
+<p><img src="../../project/Project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p><em>For my linear regression, I attempted to predict the number of affairs (in the past year) based on the number of years married and whether or not the participant has children as well as their interaction. The coefficients show that the number of yearly affairs increases by 0.304 for every year that participant has been married. They also show that participants with children have 0.925 fewer affairs per year than those without children. Last, the slope for years married on the number of yearly affairs is 0.231 lower for participants with children compared to those without. All of the coefficients are significant.</em></p>
+<pre class="r"><code>n1 &lt;- affairs
+n1$ym.cent &lt;- mean(affairs$ym.cent)
+n1$mean &lt;- predict(fit, n1)
+n1$ym.cent&lt;-mean(affairs$ym.cent) + sd(affairs$ym.cent)
+n1$plus_sd &lt;- predict(fit, n1)
+n1$ym.cent &lt;- mean(affairs$ym.cent) - sd(affairs$ym.cent)
+n1$minus_sd &lt;- predict(fit, n1)
+
+colors &lt;- c(&quot;red&quot;, &quot;orange&quot;, &quot;yellow&quot;)
+names(colors) &lt;- c(&quot;-1 sd&quot;, &quot;mean&quot;, &quot;+1 sd&quot;)
+colors = as.factor(colors)
+
+ggplot(affairs, aes(affairs.cent, ym.cent), group = colors) + geom_point() + geom_line(data = n1, aes(y = mean,color = &quot;mean&quot;)) + geom_line(data = n1, aes(y = plus_sd, color = &quot;+1 sd&quot;)) + geom_line(data = n1, aes(y = minus_sd, color = &quot;-1 sd&quot;)) + scale_color_manual(values = colors) + labs(color = &quot;Deviation&quot;) + theme(legend.position = c(.91,.19))</code></pre>
+<p><img src="../../project/Project2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" />
+When I plotted the interaction, I got a strange result. The lines are very jagged but for the most part parallel. Therefore, the interactions between my variables are likely minimal.</p>
+<pre class="r"><code>resds &lt;- lm(affairs.cent~ym.cent*children, data = affairs)$residuals
+fittd &lt;- lm(affairs.cent~ym.cent*children, data = affairs)$fitted.values
+resds &lt;- fit$residuals
+fvals &lt;- fit$fitted.values
+ggplot() + geom_point(aes(fvals,resds)) + geom_hline(yintercept=0, color=&#39;blue&#39;)</code></pre>
+<p><img src="../../project/Project2_files/figure-html/unnamed-chunk-5-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p><em>This plot is to check for homoskedasticity and linearity. The plot is nonlinear and exhibits heteroskedasticity.</em></p>
+<pre class="r"><code>ggplot() + geom_histogram(aes(resds), bins=20)</code></pre>
+<p><img src="../../project/Project2_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot() + geom_qq(aes(sample = resds)) + geom_qq_line(aes(sample=resds))</code></pre>
+<p><img src="../../project/Project2_files/figure-html/unnamed-chunk-6-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ks.test(resds, &quot;pnorm&quot;, mean=0, sd(resds))</code></pre>
+<pre><code>## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  resds
+## D = 0.3171, p-value &lt; 2.2e-16
+## alternative hypothesis: two-sided</code></pre>
+<p>*These plots and hypothesis tests show that the data skewed and not normal. the histogram is skewed to the right, the qq-plot shows that most of the points do not follow the line, and the ks test yielded a test statistic of 0.317 and a p-value of 2.2e-16. All of these strongly confirm that the data is not normal.</p>
+<pre class="r"><code>fit2 &lt;- lm(affairs.cent~ym.cent*children, data = affairs)
+bptest(fit2)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit2
+## BP = 30.379, df = 3, p-value = 1.149e-06</code></pre>
+<pre class="r"><code>summary(fit2)$coef[,1:2]</code></pre>
+<pre><code>##                       Estimate Std. Error
+## (Intercept)          0.9945270 0.43194281
+## ym.cent              0.3041737 0.07013134
+## childrenyes         -0.9253758 0.46346355
+## ym.cent:childrenyes -0.2310573 0.07693081</code></pre>
+<pre class="r"><code>coeftest(fit2, vcov = vcovHC(fit2))[,1:2]</code></pre>
+<pre><code>##                       Estimate Std. Error
+## (Intercept)          0.9945270  0.7104659
+## ym.cent              0.3041737  0.1104032
+## childrenyes         -0.9253758  0.7294674
+## ym.cent:childrenyes -0.2310573  0.1153356</code></pre>
+<p>The Breuch-Pagan test results show that the p-value is 1.1e-06. Therefore, we can reject Ho and conclude that the data is heteroskedastic. Robust standard error was conducted, and the standard error for the intercept, years married, people with children, and the interaction all increased.</p>
+<pre class="r"><code>(sum((affairs$affairs.cent - mean(affairs$affairs.cent))^2) - sum(fit$residuals^2))/sum((affairs$affairs.cent - mean(affairs$affairs.cent))^2)</code></pre>
+<pre><code>## [1] 0.04928867</code></pre>
+<p>My model explains 4.929% of the variation in the outcome.</p>
+</div>
+<div id="bootstrapping" class="section level2">
+<h2>4. Bootstrapping</h2>
+<pre class="r"><code>set.seed(100)
+boots_dat &lt;- sample_frac(affairs, replace=T)
+samp_distn &lt;- replicate(5000, {
+boots_dat &lt;- sample_frac(affairs, replace=T)
+fit3 &lt;- lm(affairs.cent ~ ym.cent*children, data = boots_dat)
+coef(fit3)
+})
+samp_distn %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept)   ym.cent childrenyes ym.cent:childrenyes
+## 1   0.6752489 0.1042843   0.6952752           0.1100886</code></pre>
+<p>The bootstrapped standard errors are 0.6752 for the intercept, 0.1043 for years married, 0.6953 for people with children, and 0.1101 for the interaction. These standard errors are all slightly lower than the robust standard errors. These numbers are still very similar, so it is likely that the bootstrapped standard errors will also have a p-value less than 0.05. These values are less different than the original standard errors computed for this model. The original standard errors were 0.4319 for the intercept, 0.0701 for the year, 0.4635 for people with children, and 0.0769 for the interaction.</p>
+</div>
+<div id="logistic-regression" class="section level2">
+<h2>5. Logistic Regression</h2>
+<pre class="r"><code>affairs &lt;- affairs %&gt;% mutate(c.children = ifelse(children == &quot;no&quot;, 0, 1))
+fit4 &lt;- glm(c.children ~ yearsmarried+affairs, data = affairs, family = &quot;binomial&quot;)
+
+coeftest(fit4)</code></pre>
+<pre><code>##
+## z test of coefficients:
+##
+## Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) -1.202593 0.181016 -6.6436 3.062e-11 ***
+## yearsmarried 0.357374 0.033135 10.7854 &lt; 2.2e-16 ***
+## affairs -0.018475 0.041199 -0.4484 0.6538
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>exp(coef(fit4))</code></pre>
+<pre><code>##  (Intercept) yearsmarried      affairs 
+##    0.3004143    1.4295709    0.9816949</code></pre>
+<p><em>The coefficient estimates for my regression are -1.203 for the intercept (significant), 0.3574 for years married (significant), and -0.0185 for the number of yearly affairs (not significant). Therefore, we reject the null hypothesis for the intercept and years married. In other words, there is a significant relationship between whether or not you have children and the number of years you have been married.</em></p>
+<pre class="r"><code>prb &lt;- predict(fit4, type = &quot;response&quot;)
+predic &lt;- ifelse(prb &gt; .5,1,0)
+table(prediction = predic, truth = affairs$c.children) %&gt;% addmargins()</code></pre>
+<pre><code>##           truth
+## prediction   0   1 Sum
+##        0   109  31 140
+##        1    62 399 461
+##        Sum 171 430 601</code></pre>
+<pre class="r"><code>(109+399)/601 #accuracy</code></pre>
+<pre><code>## [1] 0.8452579</code></pre>
+<pre class="r"><code>109/140 #tpr</code></pre>
+<pre><code>## [1] 0.7785714</code></pre>
+<pre class="r"><code>399/461 #tnr</code></pre>
+<pre><code>## [1] 0.8655098</code></pre>
+<pre class="r"><code>109/171 #ppv</code></pre>
+<pre><code>## [1] 0.6374269</code></pre>
+<p><em>For my model, accuracy is 0.8453, TPR is 0.7786, TNR is 0.8655, and PPV is 0.6374. This means that the proportion of correctly classified cases is 84.5%, the proportion of people with children correctly classified is 77.9%, the proportion of people without children correctly classified is 86.6%, and the proportion classified with children that actually do is 63.7%. This also means that, given the years married and number of yearly affairs, people will be categorized as having children and not having children about 3/4 of the time.</em></p>
+<pre class="r"><code>affairs$logit &lt;- predict(fit4, type = &quot;link&quot;)
+ggplot(affairs, aes(logit, fill = as.factor(c.children)))+geom_density(alpha=.3)+
+  theme(legend.position=c(.62,.86))+geom_vline(xintercept=0)+xlab(&quot;predictor (logit)&quot;)</code></pre>
+<p><img src="../../project/Project2_files/figure-html/unnamed-chunk-12-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>This data created a density plot that has a considerable amount of overlap between the two groups, meaning that the model is only doing an okay job. Many people who were measured to have or not have children were incorrectly categorized.</p>
+<pre class="r"><code>ROCplot &lt;- ggplot(affairs) + geom_roc(aes(d = c.children, m = prb), n.cuts=0) 
+ROCplot</code></pre>
+<p><img src="../../project/Project2_files/figure-html/unnamed-chunk-13-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.8725554</code></pre>
+<p><em>The ROC plot did not generate a right angle, but it came somewhat close. The AUC was 0.873, which is expected based on the graph. Therefore, the model is decently calculating the TPR result. Every person that is measured to have or not have children is often correctly categorized.</em></p>
+<pre class="r"><code>class_diag &lt;- function(prbs,truth){
+#CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV
+tab&lt;-table(factor(prbs&gt;.5,levels=c(&quot;FALSE&quot;,&quot;TRUE&quot;)),truth)
+acc=sum(diag(tab))/sum(tab)
+sens=tab[2,2]/colSums(tab)[2]
+spec=tab[1,1]/colSums(tab)[1]
+ppv=tab[2,2]/rowSums(tab)[2]
+if(is.numeric(truth)==FALSE &amp; is.logical(truth)==FALSE) truth&lt;-as.numeric(truth)-1
+#CALCULATE EXACT AUC
+ord&lt;-order(prbs, decreasing=TRUE)
+prbs &lt;- prbs[ord]; truth &lt;- truth[ord]
+TPR=cumsum(truth)/max(1,sum(truth))
+FPR=cumsum(!truth)/max(1,sum(!truth))
+dup&lt;-c(prbs[-1]&gt;=prbs[-length(prbs)], FALSE)
+TPR&lt;-c(0,TPR[!dup],1); FPR&lt;-c(0,FPR[!dup],1)
+n &lt;- length(TPR)
+auc&lt;- sum(((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+data.frame(acc,sens,spec,ppv,auc)
+} 
+
+class_diag(prb,affairs$c.children)</code></pre>
+<pre><code>##         acc     sens      spec       ppv       auc
+## 1 0.8452579 0.927907 0.6374269 0.8655098 0.8725554</code></pre>
+<pre class="r"><code>set.seed(100)
+k=10
+data&lt;-affairs[sample(nrow(affairs)),]
+folds&lt;-cut(seq(1:nrow(affairs)),breaks=k,labels=F)
+diags&lt;-NULL
+for(i in 1:k){
+
+train&lt;-data[folds!=i,]
+test&lt;-data[folds==i,]
+truth&lt;-test$c.children
+
+fit5&lt;-glm(c.children~yearsmarried+affairs,data=train,family=&quot;binomial&quot;)
+
+prbs&lt;-predict(fit5,newdata = test,type=&quot;response&quot;)
+
+diags&lt;-rbind(diags,class_diag(prbs,truth))
+}
+
+summarize_all(diags,mean)</code></pre>
+<pre><code>##         acc      sens      spec       ppv       auc
+## 1 0.8419126 0.9180986 0.6446083 0.8687119 0.8622182</code></pre>
+<p><em>The 10-fold CV gave an output of about 0.85 - 0.90 for accuracy and sensitivity. Specificity was 0.645.</em></p>
+</div>
+<div id="lasso" class="section level2">
+<h2>6. Lasso</h2>
+<pre class="r"><code>affairs2 &lt;- affairs %&gt;% select(-c(ym.cent, affairs.cent, logit))
+head(affairs2)</code></pre>
+<pre><code>## affairs gender age yearsmarried children religiousness
+education occupation rating c.children
+## 1 0 male 37 10.00 no 3 18 7 4 0
+## 2 0 female 27 4.00 no 4 14 6 4 0
+## 3 0 female 32 15.00 yes 1 12 1 4 1
+## 4 0 male 57 15.00 yes 5 18 6 5 1
+## 5 0 male 22 0.75 no 2 17 6 3 0
+## 6 0 female 32 1.50 no 2 17 5 5 0</code></pre>
+<pre class="r"><code>y &lt;- as.matrix(affairs2$c.children)
+x &lt;- model.matrix(c.children~., data = affairs2)[,-1] 
+x &lt;- scale(x)
+cv &lt;- cv.glmnet(x, y)
+lasso &lt;- glmnet(x, y, family = &quot;binomial&quot;, lambda = cv$lambda.1se)
+coef(lasso)</code></pre>
+<pre><code>## 10 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                     s0
+## (Intercept)   2.327586
+## affairs       .       
+## gendermale    .       
+## age           .       
+## yearsmarried  .       
+## childrenyes   3.898272
+## religiousness .       
+## education     .       
+## occupation    .       
+## rating        .</code></pre>
+<pre class="r"><code>class_diag(prb, affairs2$c.children)</code></pre>
+<pre><code>##         acc     sens      spec       ppv       auc
+## 1 0.8452579 0.927907 0.6374269 0.8655098 0.8725554</code></pre>
+<pre class="r"><code>set.seed(100)
+k = 10
+data &lt;- affairs2[sample(nrow(affairs2)),]
+folds &lt;- cut(seq(1:nrow(affairs2)), breaks = k, labels = F)
+diags &lt;- NULL
+for(i in 1:k){
+
+train &lt;- data[folds!=i,]
+test &lt;- data[folds==i,]
+truth &lt;- test$c.children
+
+fit6 &lt;- glm(c.children~., data = train, family = &quot;binomial&quot;)
+
+prbs &lt;- predict(fit6, newdata = test, type=&quot;response&quot;)
+
+diags &lt;- rbind(diags, class_diag(prbs, truth))
+}
+
+summarize_all(diags, mean)</code></pre>
+<pre><code>##   acc sens spec ppv auc
+## 1   1    1    1   1   1</code></pre>
+<p><em>Based on the results, having children is the most predictive variable. My CV results are similar to the logistic regression above.</em></p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

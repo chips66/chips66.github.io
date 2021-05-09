@@ -1,0 +1,161 @@
+---
+title: "Project 1"
+author: "Chris Hinds"
+date: "3/31/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Texas College Data  
+
+*I have chosen two datasets that consist of academic information regarding most of the universities in Texas for 2021. I obtained the "Texas_College_Acceptance_Rates_2021" dataset from acceptancerates.com, and I obtained the "Texas_College_Rank_SAT_2021" from USNews.com.*  
+  
+*The "Texas_College_Acceptance_Rates_2021" dataset includes the variables 'School', 'Applicants', 'Admitted', and 'Acceptance.Rate'.*  
+  
+*The The "Texas_College_Rank_SAT_2021" dataset includes the variables 'School', Popularity.Rank', and SAT.75.Perc'. 'Popularity.Rank' is simply a ranking based on certain criteria such as accreditation and degrees offered. 'SAT.75.Perc' is the 75th percentile SAT score for matriculants of each college.*  
+  
+*I chose these data because I thought it would intersting to study the relationship between variables such as SAT scores and acceptance rates. I would expect that a university with a lower acceptance rate would also have higher 75th percentile SAT scores. Alternatively, I expect that colleges with a better popularity ranking will have a higher number of applicants.*
+
+```{R, echo = FALSE, message = FALSE}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+```
+
+
+```{R}
+rates <- read.csv("Texas_College_Acceptance_Rates_2021.csv") %>% select(-X)
+ranks <- read.csv("Texas_College_Rank_SAT_2021.csv")
+
+stats <- inner_join(rates, ranks, by = "School")
+glimpse(stats)
+```
+
+  *Here I have simply combined my two datasets by their common variable "School" using the 'inner_join()' function. In doing this, I have automatically excluded any colleges that were not present in both datasets. I did this so there would be no randomly absent observations. Northwood University, Sul Ross State University, UT-Pan American, Our Lady of the Lake, Remington College, UTEP, Criswell, A&M Texarkana, King's University, UT RGV, Houston Clear Lake, and UNT were all dropped from the resulting dataset. This shouldn't cause any issues except that it could slightly skew summary statistics and correlations determined later.*
+  
+*For some reason, there was an empty column entitled "X" when I imported the acceptance rate dataset, so I dropped this column using the 'select()' function.*  
+
+```{R}
+all_stats <- stats %>% mutate(Denied = Applicants - Admitted)
+
+top_tier <- all_stats %>% filter(Acceptance.Rate < 0.6 & Popularity.Rank <= 25 & SAT.75.perc >= 1250) %>% arrange(desc(SAT.75.perc))
+
+glimpse(top_tier)
+
+top_tier %>% summarize(mean(SAT.75.perc), median(SAT.75.perc), sd(SAT.75.perc), mean(Acceptance.Rate), median(SAT.75.perc), sd(Acceptance.Rate))
+
+all_stats %>% group_by(Acceptance.Rate < 0.5, Acceptance.Rate >= 0.5) %>% summarise(mean(SAT.75.perc), min(SAT.75.perc), max(SAT.75.perc))
+
+applicant_info <- all_stats %>% select(School, SAT.75.perc, Acceptance.Rate)
+
+head(applicant_info)
+
+fake.tidy <- all_stats %>% pivot_longer(!School, names_to = "stat", values_to = "count")
+fake.tidy
+fake.tidy %>% pivot_wider(names_from = stat, values_from = count)
+```
+  *I chose to use the 'mutate()' function first. Specifically, by subtracting the 'Admitted' column from the 'Applicants' column, I created the 'Denied' column. Next, I used the 'filter()' and 'arrange()' functions to create a new dataset called "top_tier". I filtered through only the schools with an acceptance rate less than 0.6, a popularity ranking of 25 or better, and a matriculant 75th percentile SAT score of 1250 or greater. I then used the 'summarise()' function to create a table containing the mean, median, and standard deviation of the 75th percentile SAT scores and acceptance rates for these top tier colleges.*  
+  
+  *I did not have any categorical variables in my dataset, so I split the schools into two groups: those with an acceptance rate of 0.5 or more and those with an acceptance rate less than 0.5. I then funneled this into another 'summarise()' function to find the mean, min, and max for both of these groups. I then used the 'select()' function to create a new dataset with only the 'School', 'SAT.75.perc', and 'Acceptance.Rate' variables from the original dataset.*  
+  
+*Lastly, I used the 'pivot_longer()' function to reduce the number of columns and increase the number of rows in my data (untidy). I put all column names (except 'School') under a newly created 'stat' column, and I put all values' under a newly created 'count' column. To retidy my data, I simply reversed this using the 'pivot_wider()' function, leaving my dataset exactly as it was before.*  
+
+```{R}
+cormat <- all_stats %>% select_if(is.numeric) %>% cor(use="pair")
+
+tidycor <- cormat %>% as.data.frame %>% rownames_to_column("var1") %>% pivot_longer(-1,names_to="var2",values_to="correlation")
+
+tidycor %>% ggplot(aes(var1,var2,fill=correlation))+
+geom_tile() +
+scale_fill_gradient2(low="red",mid="white",high="green")+
+geom_text(aes(label=round(correlation,2)),color = "black", size = 4)+
+theme(axis.text.x = element_text(angle = 90, hjust=1))+
+coord_fixed()+
+ggtitle("Correlations Amongst Texas\nCollege Statistics")+
+labs(y= "Variable 2", x = "Variable 1")
+```
+  
+*This correlation heat map shows the relationships between all five of the numeric variables in my "all_stats" dataset. It seems that the acceptance rates of schools have weak or no correlations with all of the other variables. However, the number of students admitted has a very strong positive correlation with the number of applicants and with the number of denied students (of course). There is also a fairly strong negative correlation between admitted students and a school's popularity rank. The number of applicants and denied students is very positively correlated, while the number of applicants and a school's popularity rank is negatively related. Finally, the number of denied students is negatively correlated with a school's popularity rank, and 75th percentile SAT score is also negatively correlated with popularity rank.*
+
+```{R}
+stat_divisions <- all_stats %>% mutate(SAT_75th_percentile = ifelse(SAT.75.perc<=1000, "<=1000", ifelse(SAT.75.perc>1000&SAT.75.perc<=1100, "1000-1100", ifelse(SAT.75.perc>1100 & SAT.75.perc<=1200, "1100-1200", ifelse(SAT.75.perc>1200 & SAT.75.perc<=1300, "1200-1300", ifelse(SAT.75.perc>1300 & SAT.75.perc<=1400, "1300-1400", ifelse(SAT.75.perc>1400, ">1400", "0")))))))
+
+stat_divisions <- stat_divisions %>% mutate(Acceptance_Rate = ifelse(Acceptance.Rate<=0.25, "<=25%", ifelse(Acceptance.Rate>0.25&Acceptance.Rate<=0.5, "25-50%", ifelse(Acceptance.Rate>0.5 & Acceptance.Rate<=0.75, "50-75%", ifelse(Acceptance.Rate>0.75, "75-100%", "0")))))
+
+stat_divisions <- stat_divisions %>% mutate(Num.Applicants = ifelse(Applicants<=5000, "<=5,000", ifelse(Applicants>5000&Applicants<=10000, "5,000-10,000", ifelse(Applicants>10000 & Applicants<=15000, "10,000-15,000", ifelse(Applicants>15000 & Applicants<=20000, "15,000-20,000", ifelse(Applicants>20000 & Applicants<=25000, "20,000-25,000", ifelse(Applicants>25000, ">25,000", "0")))))))
+
+stat_divisions %>% ggplot(aes(Acceptance.Rate)) + geom_histogram(aes(fill = Num.Applicants),  color = "black") +
+  geom_density(aes(color = SAT_75th_percentile), size = 1.25)+
+  ggtitle("SAT Scores and Number of Applicants Relative to Acceptance Rate")+
+  labs(x = "Acceptance Rate", fill = "Number of Applicants\n(Histogram)", color = "75th Percentile SAT Score\n(Density Plot)")+
+  scale_color_manual(values = c("dark red", "dark orange", "yellow", "dark green", "dark blue", "purple"))+
+  scale_y_continuous(breaks = c(1, 2, 3, 4, 5, 6, 7))
+```
+  
+  *First, since I didn't have any categorical variables in my dataset, I had to create a few from my numerical variables. Specifically, I created ranges for each variable to be grouped into.*  
+  
+  *I used the acceptance rate, number of applicants, and SAT score variables for this plot. With this graph, you can compare these variables with each other. For example, you can see that schools with an SAT 75th percentile score of 1300-1400 tend to have an acceptance rate of around 55%. Additionally, you can see that there seems to be no relationship between the number of applicants a school considers and the school's acceptance rate since each color of the histogram aesthetic is scattered throughout the plot.*
+
+```{R}
+ggplot(stat_divisions, aes(x = Acceptance_Rate, y = SAT.75.perc, fill=Num.Applicants))+
+  geom_bar(stat="summary",fun=mean, position = "dodge")+
+  ggtitle("Makeup of Acceptance Rate Quartiles")+
+  labs(y= "75th Percentile SAT Score", x = "Acceptance Rate", fill = "# of Applicants")+
+  scale_fill_manual(values = c("red", "orange", "yellow", "green", "blue", "purple"))+
+  scale_fill_hue(l=60, c=60)
+```
+  
+  *Since I really don't have many variables to play with, I used the same three variables here. However, this time I presented the data such a way that shows the makeup of each quartile of acceptance rates. Additionally, this plot allows you to see which quartiles coincide with which 75th percentile SAT scores. This graph illustrates that all schools with an acceptance rate of 25% or less have between 15,000 and 20,000 applicants. It can also be concluded that the Texas schools that have greater than 25,000 applicants and an acceptance rate of 25-50% have an average 75th percentile SAT score of nearly 1500. Many other conclusions such as this can be reached, but a more general conclusion is that there seems to be no relationship between a school's acceptance rate and its matriculant SAT scores.*  
+  
+  
+```{R}
+some_stats <- all_stats %>% select(-Popularity.Rank)
+num_stats <- some_stats %>% select_if(is.numeric) %>% scale
+rownames(num_stats)<- all_stats$School
+stats_pca <- princomp(num_stats)
+names(stats_pca)
+
+summary(stats_pca, loadings=T)
+
+statsdf <- data.frame(PC1=stats_pca$scores[, 1],PC2=stats_pca$scores[, 2])
+ggplot(statsdf, aes(PC1, PC2)) + geom_point()
+
+School <-  all_stats$School
+
+#highest PC1
+stats_pca$scores %>% as.data.frame %>% cbind(School, .) %>% top_n(3, Comp.1) 
+
+#lowest PC1
+stats_pca$scores %>% as.data.frame %>% cbind(School, .) %>% top_n(3, wt=desc(Comp.1))
+
+#highest PC2
+stats_pca$scores %>% as.data.frame %>% cbind(School, .) %>% top_n(3, wt=Comp.2) 
+
+#lowest PC2
+stats_pca$scores %>% as.data.frame %>% cbind(School, .) %>% top_n(3, wt=desc(Comp.2)) 
+
+
+all_stats %>% filter(School%in%c("The University of Texas at Austin (UT Austin)", "Baylor University", "Texas A & M University-College Station (Texas A&M)"))
+
+
+all_stats %>% filter(School%in%c("Dallas Christian College", "Paul Quinn College", "Wayland Baptist University (WBU)"))
+
+
+all_stats %>% filter(School%in%c("Texas State University-San Marcos (Texas State)", "Texas A & M University-College Station (Texas A&M)", "Texas A & M University-Corpus Christi"))
+
+
+all_stats %>% filter(School%in%c("Rice", "Southwestern Assemblies of God University", "Texas A & M University-Texarkana (A&M-Texarkana)"))
+```
+  
+*Here, I grabbed all numeric data from my dataset except for 'Popularity.Rank'. Then I scaled data and ran 'princomp()' on the scaled data. Next, I chose to include the first PC1 and PC2 in my analysis since these components account for over 85% of the total variance. It seems that schools high in PC1 tend be high in all variables except acceptance rate which they are lower in. Conversely, schools high in PC2 tend to have significantly higher acceptance rates. They also admit more students, but they have lower matriculant SAT scores and deny fewer students.*  
+  
+  *After creating a scatterplot to visualize these components, it is apparent that there are a few outliers. I identified the the schools with the highest and lowest scores for PC1 and PC2, and then I printed out their stats seperately. As an example, UT Austin, Baylor, and A&M are the three schools that are the highest in PC1.*
+
+
+
+
+
+
