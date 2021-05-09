@@ -13,7 +13,8 @@
       <pubDate>Sun, 09 May 2021 00:00:00 +0000</pubDate>
       
       <guid>/post/2021/05/09/test-post/</guid>
-      <description>Heeelllloooo blah blah</description>
+      <description>Hello, my name is Chris Hinds. I’m a biology major at UT Austin, and I’m pre-med. In addition to biology, I enjoy coding from time to time. Here is a little bit of python and R that I have learned!
+library(reticulate) library(ggplot2) reticulateisfun &amp;lt;- &amp;quot;Biology major at the University of Texas at Austin&amp;quot; one = 1 two = 2 five = 5 ten = 10 one + five * ten ## 51 list=[1,20,290,-1,63,14,613] max(list) ## 613 min(list) ## -1 list[3:6] ## [-1, 63, 14] myname = &amp;#39;Christopher Mark Hinds&amp;#39; myeid = &amp;#39;cmh5256&amp;#39; myname + &amp;#39;, &amp;#39; + myeid ## &amp;#39;Christopher Mark Hinds, cmh5256&amp;#39; print(myname, &amp;quot;\n&amp;quot;, r.</description>
     </item>
     
   </channel>
