@@ -11,7 +11,7 @@ description: ''
 Hello, my name is Chris Hinds. I'm a biology major at UT Austin, and I'm pre-med. In addition to biology, I enjoy coding from time to time. Here is a little bit of python and R that I have learned!
 
 Also, here's another picture of me from when I went hiking in Colorado.
-![me on a hike in Colorado](/post/2021-05-09-test-post_files/IMG_2987.jpg)
+![me hiking in Colorado](/post/2021-05-09-test-post_files/IMG_2987.jpg){width=300px height=600px}
 
 ```{R}
 #R
