@@ -10,7 +10,11 @@ description: ''
 
 Hello, my name is Chris Hinds. I'm a biology major at UT Austin, and I'm pre-med. In addition to biology, I enjoy coding from time to time. Here is a little bit of python and R that I have learned!
 
+Also, here's another picture of me from when I went hiking in Colorado.
+![me hiking in Colorado](/post/2021-05-09-test-post_files/IMG_2987.HEIC)
+
 ```{R}
+#R
 library(reticulate)
 library(ggplot2)
 
@@ -18,6 +22,7 @@ reticulateisfun <- "Biology major at the University of Texas at Austin"
 ```
 
 ```{python}
+#Python
 one = 1
 two = 2
 five = 5
@@ -40,6 +45,7 @@ y = [15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]
 ```
 
 ```{R}
+#R
 9*py$five
 
 ggplot()+geom_point(aes(py$x,py$y))
